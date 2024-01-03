@@ -3,6 +3,9 @@ import sqlalchemy
 import requests
 import io
 import sqlite3
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 
 
 url_2009 = "https://datamillnorth.org/download/road-traffic-accidents/288d2de3-0227-4ff0-b537-2546b712cf00/2009.csv"
@@ -25,6 +28,7 @@ df_1 = fetch_and_read(url_2009)
 df_2 = fetch_and_read(url_2015)
 df_3 = fetch_and_read(url_2016)
 
+"""""
 df_2009 = df_1.loc[ :, ['Type of Vehicle', 'Casualty Severity']]
 df_2015 = df_2.loc[ :, ['Type of Vehicle', 'Casualty Severity']]
 df_2016 = df_3.loc[ :, ['Type of Vehicle', 'Casualty Severity']]
@@ -44,12 +48,25 @@ df_2016.dropna(subset=['Casualty Severity'], inplace = True)
 df_2009 = df_2009.str.lower()
 df_2015 = df_2015.str.lower()
 df_2016 = df_2016.str.lower()
+"""""
+
+combined_df = pd.concat([df_1, df_2, df_3], ignore_index = True)
+combined_df.dropna(subset=["Type of Vehicle", "Casualty Severity"], inplace = True)
+
+combined_df["Type of Vehicle"] = combined_df["Type of Vehicle"].str.lower()
+combined_df["Casualty Severity"] = combined_df["Casualty Severity"].str.lower()
+
+combined_df = combined_df.head()
+
+correlation_data = pd.crosstab(combined_df["Type of Vehicle"], combined_df["Casualty Severity"])
+sns.heatmap(correlation_data, annot=True, cmap= 'coolwarm', fmt = 'd')
+plt.title("Correlation between Type of vehicle and Casualty severity")
+plt.show()
+
 
 conn = sqlite3.connect('./data/accidents.sqlite')
 
-df_2009.to_sql('accidents_2009', conn, index=False, if_exists='replace')
-df_2015.to_sql('accidents_2015', conn, index=False, if_exists='replace')
-df_2016.to_sql('accidents_2016', conn, index=False, if_exists='replace')
+combined_df.to_sql('combined_accidents', conn, index=False, if_exists='replace')
 
 conn.commit()
 conn.close()
