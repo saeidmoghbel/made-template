@@ -18,55 +18,41 @@ def fetch_and_read (url):
         return pd.read_csv(io.StringIO(response.text), sep =";" , on_bad_lines='skip')
     except requests.RequestException as e:
         print(f"the fetching data from {url}: {e}")
-        pd.DataFrame()
+        return pd.DataFrame()
     except pd.errors.ParserError as e:
         print(f"error parsing csv from {url}: {e}")
-        pd.DataFrame()
+        return pd.DataFrame()
+
+def clean_data(df):
+    df.dropna(subset=["Type of Vehicle", "Casualty Severity"], inplace=True)
+    df["Type of Vehicle"] = df["Type of Vehicle"].str.lower()
+    df["Casualty Severity"] = df["Casualty Severity"].str.lower()
+    df["Type of Vehicle"] = df["Type of Vehicle"].replace({"Taxi/Private hire car": "Car", "M/cycle 50cc and under": "Pedal cycle", "Other Vehicle": "Car",
+                                                           "Motorcycle over 125cc and up to 500cc": "Pedal cycle", "Goods vehicle 3.5 tonnes mgw and under": "Bus or coach (17 or more passenger seats)"})
+    severity_order = ["Slight", "Serious", "Fatal"]
+    df["Casualty Severity"] = pd.Categorical(df["Casualty Severity"], categories=severity_order, ordered=True)
+    return df
+
+def analyze_data(df):
+    selected_df = df.loc[:, ["Casualty Severity", "Type of Vehicle"]]
+    sns.countplot(x="Type of Vehicle", hue="Casualty Severity", data=selected_df)
+    plt.title("Count of Casualty Severity for each Type of Vehicle")
+    plt.show()
+    
+def load_data(df, db_path, accidents):
+    conn = sqlite3.connect(db_path)
+    df.to_sql(accidents, conn, index=False, if_exist='replace')
+    conn.commit()
+    conn.close()
             
     
 df_1 = fetch_and_read(url_2009)
 df_2 = fetch_and_read(url_2015)
 df_3 = fetch_and_read(url_2016)
 
-"""""
-df_2009 = df_1.loc[ :, ['Type of Vehicle', 'Casualty Severity']]
-df_2015 = df_2.loc[ :, ['Type of Vehicle', 'Casualty Severity']]
-df_2016 = df_3.loc[ :, ['Type of Vehicle', 'Casualty Severity']]
-
-df_2009 = df_2009.astype('category')
-df_2015 = df_2015.astype('category')
-df_2016 = df_2016.astype('category')
-
-df_2009.dropna(subset=['Type of Vehicle'], inplace = True)
-df_2015.dropna(subset=['Type of Vehicle'], inplace = True)
-df_2016.dropna(subset=['Type of Vehicle'], inplace = True)
-
-df_2009.dropna(subset=['Casualty Severity'], inplace = True)
-df_2015.dropna(subset=['Casualty Severity'], inplace = True)
-df_2016.dropna(subset=['Casualty Severity'], inplace = True)
-
-df_2009 = df_2009.str.lower()
-df_2015 = df_2015.str.lower()
-df_2016 = df_2016.str.lower()
-"""""
 
 combined_df = pd.concat([df_1, df_2, df_3], ignore_index = True)
-combined_df.dropna(subset=["Type of Vehicle", "Casualty Severity"], inplace = True)
+cleaned_df = clean_data(combined_df)
+analyze_data(cleaned_df)
 
-combined_df["Type of Vehicle"] = combined_df["Type of Vehicle"].str.lower()
-combined_df["Casualty Severity"] = combined_df["Casualty Severity"].str.lower()
-
-combined_df = combined_df.head()
-
-correlation_data = pd.crosstab(combined_df["Type of Vehicle"], combined_df["Casualty Severity"])
-sns.heatmap(correlation_data, annot=True, cmap= 'coolwarm', fmt = 'd')
-plt.title("Correlation between Type of vehicle and Casualty severity")
-plt.show()
-
-
-conn = sqlite3.connect('./data/accidents.sqlite')
-
-combined_df.to_sql('combined_accidents', conn, index=False, if_exists='replace')
-
-conn.commit()
-conn.close()
+load_data(cleaned_df, './data/accidents.sqlite', 'combined_accidents')
