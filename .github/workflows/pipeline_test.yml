@@ -2,14 +2,14 @@ name: PipeLine Test
 
 on:
   push:
-   branches:
-   - main
-   paths:
-   - project/**
+    branches:
+      - main
+    paths:
+      - project/**
 
 jobs:
   build:
-    runs on: ubuntu-latest
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout
@@ -20,19 +20,16 @@ jobs:
       with:
         python-version: 3.11
 
-    - name: Install pnadas
-      run: |
-         python -m pip install pandas
-
     - name: Upgrade Pip
       run: |
         python -m pip install --upgrade pip
 
+    - name: Install Dependencies
+      run: |
+        python -m pip install pandas requests seaborn matplotlib pytest sqlite3
+
     - name: Test Feedback
       run: |
         cd project
+        chmod +x tests.sh
         ./tests.sh
-     
-
-
-   
