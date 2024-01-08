@@ -3,9 +3,9 @@ name: PipeLine Test
 on:
   push:
     branches:
-      - main
+    - main
     paths:
-      - project/**
+    - project/**
 
 
 jobs:
@@ -40,5 +40,4 @@ jobs:
     - name: Test Feedback
       run: |
         cd project
-        chmod +x tests.sh
         ./tests.sh
