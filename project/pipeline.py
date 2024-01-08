@@ -1,5 +1,4 @@
 import pandas as pd
-import sqlalchemy
 import requests
 import io
 import sqlite3
@@ -22,6 +21,16 @@ def fetch_and_read (url):
     except pd.errors.ParserError as e:
         print(f"error parsing csv from {url}: {e}")
         return pd.DataFrame()
+    
+def clean_datasets(cleaned_df):
+    df_1 = fetch_and_read(url_2009)
+    df_2 = fetch_and_read(url_2015)
+    df_3 = fetch_and_read(url_2016)
+    combined_df = pd.concat([df_1, df_2, df_3], ignore_index = True)
+    selected_columns = combined_df.loc[:, ["Casualty Severity", "Type of Vehicle"]]
+    cleaned_df = clean_data(selected_columns)
+    analyze_data(cleaned_df)
+    return cleaned_df
 
 def clean_data(df):
     df.dropna(subset=["Type of Vehicle", "Casualty Severity"], inplace=True)
@@ -39,22 +48,10 @@ def analyze_data(df):
     plt.title("Count of Casualty Severity for each Type of Vehicle")
     plt.show()
     
-def load_data(df, db_path, accidents):
+def load_data(df, db_path, accidents, cleaned_df):
+    db_path = './data/accidents.sqlite'
     conn = sqlite3.connect(db_path)
     df.to_sql(accidents, conn, index=False, if_exist='replace')
+    load_data(cleaned_df, './data/accidents.sqlite', 'combined_accidents')
     conn.commit()
     conn.close()
-            
-    
-df_1 = fetch_and_read(url_2009)
-df_2 = fetch_and_read(url_2015)
-df_3 = fetch_and_read(url_2016)
-
-def clean_data(df):
-    combined_df = pd.concat([df_1, df_2, df_3], ignore_index = True)
-    selected_columns = combined_df.loc[:, ["Casualty Severity", "Type of Vehicle"]]
-    cleaned_df = clean_data(selected_columns)
-    analyze_data(cleaned_df)
-    return cleaned_df
-
-    load_data(cleaned_df, './data/accidents.sqlite', 'combined_accidents')
