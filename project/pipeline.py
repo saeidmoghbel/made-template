@@ -50,9 +50,11 @@ df_1 = fetch_and_read(url_2009)
 df_2 = fetch_and_read(url_2015)
 df_3 = fetch_and_read(url_2016)
 
+def clean_data(df):
+    combined_df = pd.concat([df_1, df_2, df_3], ignore_index = True)
+    selected_columns = combined_df.loc[:, ["Casualty Severity", "Type of Vehicle"]]
+    cleaned_df = clean_data(selected_columns)
+    analyze_data(cleaned_df)
+    return cleaned_df
 
-combined_df = pd.concat([df_1, df_2, df_3], ignore_index = True)
-cleaned_df = clean_data(combined_df)
-analyze_data(cleaned_df)
-
-load_data(cleaned_df, './data/accidents.sqlite', 'combined_accidents')
+    load_data(cleaned_df, './data/accidents.sqlite', 'combined_accidents')
