@@ -101,6 +101,7 @@ def load_data(df, db_path, accidents, cleaned_df):
     Returns:
     None
     """
+    db_path = './data/accidents.sqlite'
     conn = sqlite3.connect(db_path)
     df.to_sql(accidents, conn, index=False, if_exists='replace')
     conn.commit()
