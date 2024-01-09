@@ -39,5 +39,5 @@ jobs:
 
     - name: Test Feedback
       run: |
-        cd Project
+        cd ../project
         ./tests.sh
