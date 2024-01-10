@@ -5,11 +5,6 @@ import sqlite3
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-
-
-
-
-
 def fetch_and_read(url):
     """
     Fetches data from the given URL and reads it as a CSV file.
@@ -84,8 +79,6 @@ def analyze_data(cleaned_df):
     chart_2.set_xticklabels(chart_2.get_xticklabels(), rotation=45, horizontalalignment='right')
     plt.title("Count of Casualty Severity for each Type of Vehicle")
     plt.show()
-
-# Call the analyze_data function with the cleaned_df DataFrame
 
     
 def load_data(df, db_path, accidents, cleaned_df):
