@@ -42,5 +42,4 @@ jobs:
 
     - name: Test Feedback
       run: |
-        cd ./project
-        ./tests.sh
+        chmod +x ./project/tests.sh
