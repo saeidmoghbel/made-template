@@ -63,6 +63,7 @@ def clean_data(df):
     df["Casualty Severity"] = pd.Categorical(df["Casualty Severity"], categories=severity_order, ordered=True)
     return df
 
+
 def analyze_data(cleaned_df):
     """
     Analyzes the given DataFrame by plotting a countplot of Casualty Severity for each Type of Vehicle.
