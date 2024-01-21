@@ -46,14 +46,11 @@ jobs:
 
       - name: Set Execute Permissions
         run: |
-          chmod +ux ./project/tests.sh
+          chmod +x ./project/tests.sh
           ls -l ./project/tests.sh
 
       - name: Debug User Information
         run: whoami
-
-      - name: Make tests executable
-        run: chmod +ux ./project/tests.sh
 
       - name: Test Feedback
         run: |
