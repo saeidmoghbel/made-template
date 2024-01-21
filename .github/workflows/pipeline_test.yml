@@ -43,9 +43,15 @@ jobs:
         run: |
           git update-index --chmod=+x ./project/tests.sh
 
-      - name: Debug Permissions
+      - name: Debug Ownership and Permissions
         run: |
-          ls -l ./project/tests.sh
+          stat ./project/tests.sh
+
+      - name: Debug User Information
+        run: whoami
+
+      - name: Set Execute Permissions (Again)
+        run: chmod +x ./project/tests.sh
 
       - name: Test Feedback
         run: |
