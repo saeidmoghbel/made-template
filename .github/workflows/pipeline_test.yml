@@ -40,6 +40,10 @@ jobs:
       run: |
         python -m pip install -r ./requirements.txt
 
+    - name: Set Execute Permissions
+      run: |
+          git update-index --chmod=+x ./project/tests.sh
+
     - name: Test Feedback
       run: |
         chmod +x ./project/tests.sh
