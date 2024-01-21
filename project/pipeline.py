@@ -95,7 +95,7 @@ def load_data(df, db_path, accidents, cleaned_df):
     Returns:
     None
     """
-    db_path = './data/accidents.sqlite3'
+   
     conn = sqlite3.connect(db_path)
     df.to_sql(accidents, conn, index=False, if_exists='replace')
     conn.commit()
@@ -103,8 +103,7 @@ def load_data(df, db_path, accidents, cleaned_df):
     
     
 def main():
-    # Define SQLite database path
-    db_path = './data/accidents.sqlite'
+    db_path = '/Users/saeidmoghbel/made-template-2/data/accidents.sqlite3'
     url_2009 = "https://datamillnorth.org/download/road-traffic-accidents/288d2de3-0227-4ff0-b537-2546b712cf00/2009.csv"
     url_2015 = "https://datamillnorth.org/download/road-traffic-accidents/df98a6dd-704e-46a9-9d6d-39d608987cdf/2015.csv"
     url_2016 = "https://datamillnorth.org/download/road-traffic-accidents/b2c7ebba-312a-4b3d-a324-6a5eda85fa5b/Copy%2520of%2520Leeds_RTC_2016.csv"
