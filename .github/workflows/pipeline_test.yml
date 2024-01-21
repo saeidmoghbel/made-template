@@ -52,6 +52,9 @@ jobs:
       - name: Debug User Information
         run: whoami
 
+      - name: Make tests executable
+        run: chmod +x ./project/tests.sh
+
       - name: Test Feedback
         run: |
           cd ./project
