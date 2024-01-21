@@ -52,9 +52,12 @@ jobs:
 
       - name: Set Execute Permissions (Again)
         run: chmod +x ./project/tests.sh
+      
+      - name: Set Execute Permissions (feedback)
+        run: chmod +x ./tests.sh
 
       - name: Test Feedback
         run: |
-          cd project
-          chmod +x tests.sh
-          sh tests.sh
+          cd ./project
+          ./tests.sh
+          
