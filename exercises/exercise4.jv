@@ -1,30 +1,28 @@
+transform CelsiusToFahrenheit {
+    from Celsius oftype decimal;
+    to Fahrenheit oftype decimal;
+    Fahrenheit: (Celsius * 9/5) + 32;
+}
 
- transform CelsiusToFahrenheit {
-   from Celsius oftype decimal;
-   to Fahrenheit oftype decimal;
-   Fahrenheit: (Celsius * 9/5) + 32;
- }
-
-pipeline TemperatureDataPipeline {
-
+pipeline TemperaturesPipeline {
     block DataExtractor oftype HttpExtractor {
         url: "https://www.mowesta.com/data/measure/mowesta-dataset-20221107.zip";
     }
 
-    block ZipArchInterpreter oftype ArchiveInterpreter {
+    block ZipArchiveExtractor oftype ArchiveInterpreter {
         archiveType: "zip";
     }
 
-    block CsvFilePicker oftype FilePicker {
+    block FilePicker oftype FilePicker {
         path: "/data.csv";
     }
 
-    block CsvTextFileInterpreter oftype TextFileInterpreter { }
-    
-    block CsvInterpreter oftype CSVInterpreter {
+    block TextFileInterpreter oftype TextFileInterpreter { }
+
+    block CSVInterpreter oftype CSVInterpreter {
         delimiter: ";";
     }
-    //Rename columns
+
     block TemperaturesHeader oftype CellWriter {
         at: cell E1;
         write: ["Temperatur"];
@@ -35,8 +33,7 @@ pipeline TemperatureDataPipeline {
         write: ["Batterietemperatur"]; 
     }
 
-
-    block MainInterpreter oftype TableInterpreter {
+    block TableInterpreter oftype TableInterpreter {
         header: true;
         columns: [
             "Geraet" oftype integer,
@@ -49,12 +46,10 @@ pipeline TemperatureDataPipeline {
         ];
     }
 
-    block TableColumnDeleter oftype ColumnDeleter {
+    block ColumnDeleter oftype ColumnDeleter {
         delete: [column F, column G, column H, column I,  column L, column M, column N, column O];
     }
 
-
-    //Transform Celsius to Fahrenheit
     block CelToFahrTemperaturTransform oftype TableTransformer {
         inputColumns: ['Temperatur'];
         outputColumn: 'Temperatur';
@@ -67,23 +62,21 @@ pipeline TemperatureDataPipeline {
         use: CelsiusToFahrenheit;
     }
 
-
-    block SQLLoader oftype SQLiteLoader {
+    block SQLiteLoader oftype SQLiteLoader {
         table: "temperatures";
         file: "./temperatures.sqlite";
     }
 
     DataExtractor
-        ->ZipArchInterpreter
-        ->CsvFilePicker
-        ->CsvTextFileInterpreter
-        ->CsvInterpreter
-        ->TemperaturesHeader
-        ->BatteryTemperaturesHeader
-        ->TableColumnDeleter
-        ->MainInterpreter
-        ->CelToFahrTemperaturTransform
-        ->CelToFahrBatterietemperaturTransform
-        ->SQLLoader;
-
-    }
+        -> ZipArchiveExtractor
+        -> FilePicker
+        -> TextFileInterpreter
+        -> CSVInterpreter
+        -> TemperaturesHeader
+        -> BatteryTemperaturesHeader
+        -> ColumnDeleter
+        -> TableInterpreter
+        -> CelToFahrTemperaturTransform
+        -> CelToFahrBatterietemperaturTransform
+        -> SQLiteLoader;
+}
